@@ -1,0 +1,3 @@
+nose
+nose-timer
+-e git+git@github.com:10clouds/Troia-Python-Client.git#egg=troia_client
