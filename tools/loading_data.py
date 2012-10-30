@@ -7,7 +7,7 @@ from tools.common import transform_cost_from_flat_to_dict
 def load_all(path):
     def tmp(pathh):
         pathh = os.path.normpath(pathh)
-        return list(csv.reader(open(path), delimiter='\t'))
+        return list(csv.reader(open(pathh), delimiter='\t'))
 
     correct, costs, inputt = \
         [tmp(path + s) for s in ['/correct', '/costs', '/input']]
