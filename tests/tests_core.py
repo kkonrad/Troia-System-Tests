@@ -38,6 +38,8 @@ def web_demo_scenario(jid, tc, iterations, golds, cost_matrix, assigns):
     N = 500
     tc.ping()
     tc.exists(jid)
+    tc.reset(jid)
+
     tc.load_categories(cost_matrix, jid)
     num_packs = int(math.ceil(len(assigns) / float(N)))
     for package in (assigns[i * N:(i + 1) * N] for i in xrange(num_packs)):
@@ -46,7 +48,7 @@ def web_demo_scenario(jid, tc, iterations, golds, cost_matrix, assigns):
     time.sleep(4)
     for _ in xrange(iterations):
         tc.compute_non_blocking(1, jid)
-        while 'true' not in tc.is_computed(jid)['result']:
+        while 'true' not in tc.is_computed(jid):
             time.sleep(2)
 
         tc.print_worker_summary(False, jid)
