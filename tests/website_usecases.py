@@ -9,8 +9,8 @@ from tools.loading_data import load_all
 from tools.troia import get_troia_client
 from tests.tests_core import TroiaWebDemoUser
 
-WORKERS = 2
-ITERATIONS = 2
+WORKERS = 10
+ITERATIONS = 10
 DATASETS = ['datasets/' + s for s in ('AdultContent', 'BarzanMozafari')]
 
 
@@ -24,9 +24,9 @@ def run_simulation(datasets, workers_num):
     for worker in workers:
         worker.set_datasets(datasets)
     executor = ProcessPoolExecutor(workers_num)
-    maap = map
-    # maap = lambda *args, **kwargs: list(executor.map(*args, **kwargs))
-    map(exec_fun, workers, repeat(ITERATIONS, workers_num))
+    # maap = map
+    maap = lambda *args, **kwargs: list(executor.map(*args, **kwargs))
+    maap(exec_fun, workers, repeat(ITERATIONS, workers_num))
 
 
 def main():
