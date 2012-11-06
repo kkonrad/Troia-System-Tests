@@ -7,7 +7,7 @@ from tools.loading_data import load_all
 from tools.troia import get_troia_client
 
 
-DATASETS = ['datasets/' + s for s in ('AdultContent', 'BarzanMozafari')]
+DATASETS = ['datasets/' + s for s in ('AdultContent',)]
 
 def executeDawidSkene(jid, tc, iterations, incremental, golds, cost_matrix, assigns):
     print "Executing DS"
@@ -18,6 +18,7 @@ def executeDawidSkene(jid, tc, iterations, incremental, golds, cost_matrix, assi
         print "DS model reset"
     else:
         print "No need for DS reset"
+    print cost_matrix
     tc.load_categories(cost_matrix, jid)
     print "DS model created"
     tc.load_worker_assigned_labels(assigns, jid)
@@ -43,7 +44,7 @@ class QualityComparisionTest():
 
     def run(self):
         print "Begining quality comparition test"
-        dataset = self.datasets[1]
+        dataset = self.datasets[0]
         incrementalResults = executeDawidSkene(self.jid,self.tc,self.iterations,True,*dataset)
         batchResults = executeDawidSkene(self.jid,self.tc,self.iterations,False,*dataset)
         labelCount = 0
