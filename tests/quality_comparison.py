@@ -30,7 +30,7 @@ def executeDawidSkene(jid, tc, iterations, incremental, golds, cost_matrix, assi
     print "Created computer"
     while 'true' not in tc.is_computed(jid):
         time.sleep(2)
-    return tc.majority_votes(jid)
+    return tc.majority_votes(jid)["result"]
 
 
 class QualityComparisionTest():
@@ -49,10 +49,11 @@ class QualityComparisionTest():
         batchResults = executeDawidSkene(self.jid,self.tc,self.iterations,False,*dataset)
         labelCount = 0
         differingMajorityVoteCount = 0
-        for index in  range(len(incrementalResults)):
-            if incrementalResults != batchResults :
+        objects = incrementalResults.keys()
+        for index in  range(len(objects)):
+            if incrementalResults[objects[index]] != batchResults[objects[index]] :
                 differingMajorityVoteCount = differingMajorityVoteCount + 1
-        print "Differing labels = " + differingMajorityVoteCount
+        print "Differing labels = " + str(differingMajorityVoteCount)
 
 def main():
     datasets = [load_all(ds) for ds in DATASETS]
