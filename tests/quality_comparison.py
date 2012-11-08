@@ -5,7 +5,9 @@ sys.path.append('.')
 
 from tools.loading_data import load_all
 from tools.troia import get_troia_client
+from tools.random_data_generation import generate_data
 from tests.tests_core import TroiaUser
+
 
 DATASETS = ['datasets/' + s for s in ('AdultContent','BarzanMozafari')]
 
@@ -38,12 +40,12 @@ def executeDawidSkene(jid, tc, iterations, incremental, golds, cost_matrix, assi
 
 class QualityComparisionTest(TroiaUser):
 
-    def __init__(self,tc,jid,iterations,dataset):
+    def __init__(self,tc,jid,iterations,iteration_step,dataset):
         self.jid = jid
         self.tc=tc
         self.dataset=dataset
         self.iterations = iterations
-
+        self.iteration_step = iteration_step
 
     def loop(self):
         print "Begining quality comparition test"
@@ -65,29 +67,17 @@ class QualityComparisionTest(TroiaUser):
                 differingMajorityVoteCount = differingMajorityVoteCount + 1
         print "Objects = "+str(len(objects))+" Iterations = "+ str(self.iterations)+" Differing labels = "\
             + str(differingMajorityVoteCount) + " Incremental time adv =" + str(timeDifference)
+        self.iterations = self.iterations+self.iteration_step
+
+
 
 def main():
     datasets = [load_all(ds) for ds in DATASETS]
-
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",3,datasets[0])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",10,datasets[0])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",15,datasets[0])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",30,datasets[0])
-    test.loop()
-
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",1,datasets[1])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",3,datasets[1])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",10,datasets[1])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",15,datasets[1])
-    test.loop()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",30,datasets[1])
-    test.loop()
+    workers, objects, golds, labels, votes, cost_matrix = generate_data(10000)
+    fakeDataset = [golds,cost_matrix,votes]
+    print golds
+    test = QualityComparisionTest(get_troia_client(),"QualityTest",1,3,fakeDataset)
+    test.loop_x_times(5)
 
 if __name__ == "__main__":
     main()
