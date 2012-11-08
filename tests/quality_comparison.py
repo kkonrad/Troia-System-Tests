@@ -5,7 +5,7 @@ sys.path.append('.')
 
 from tools.loading_data import load_all
 from tools.troia import get_troia_client
-
+from tests.tests_core import TroiaUser
 
 DATASETS = ['datasets/' + s for s in ('AdultContent',)]
 
@@ -33,7 +33,7 @@ def executeDawidSkene(jid, tc, iterations, incremental, golds, cost_matrix, assi
     return tc.majority_votes(jid)["result"]
 
 
-class QualityComparisionTest():
+class QualityComparisionTest(TroiaUser):
 
     def __init__(self,tc,jid,iterations,datasets):
         self.jid = jid
@@ -42,7 +42,7 @@ class QualityComparisionTest():
         self.iterations = iterations
 
 
-    def run(self):
+    def loop(self):
         print "Begining quality comparition test"
         dataset = self.datasets[0]
         incrementalResults = executeDawidSkene(self.jid,self.tc,self.iterations,True,*dataset)
@@ -58,7 +58,7 @@ class QualityComparisionTest():
 def main():
     datasets = [load_all(ds) for ds in DATASETS]
     test = QualityComparisionTest(get_troia_client(),"QualityTest",10,datasets)
-    test.run()
+    test.loop()
 
 if __name__ == "__main__":
     main()
