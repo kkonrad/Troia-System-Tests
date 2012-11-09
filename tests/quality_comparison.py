@@ -8,12 +8,14 @@ sys.path.append('.')
 from tools.loading_data import load_all
 from tools.troia import get_troia_client
 from tools.random_data_generation import generate_data
+from tools.random_data_generation import generate_objects
+from tools.random_data_generation import generate_votes
 from tests.tests_core import TroiaUser
 
 
 
 
-def initializeDawidSkene(jid,tc,workers, objects, golds, labels, votes, cost_matrix,incremental):
+def initializeDawidSkene(jid,tc,workers, golds, labels, cost_matrix,incremental):
 
     tc.ping()
     if tc.exists(jid):
@@ -25,17 +27,13 @@ def initializeDawidSkene(jid,tc,workers, objects, golds, labels, votes, cost_mat
     tc.load_gold_labels(golds, jid)
 
 
-def executeDawidSkene(jid, tc, iterations, votes):
+def executeDawidSkene(jid, tc, iterations, objects, votes):
     tc.load_worker_assigned_labels(votes, jid)
     tc.compute_non_blocking(iterations, jid)
     while 'true' not in tc.is_computed(jid):
         time.sleep(2)
     return tc.majority_votes(jid)["result"]
 
-def dataAdditionTest(jid, tc, initial_iterations,iteration_step,initial_labels,labels_step):
-    workers, objects, golds, labels, votes, cost_matrix = generate_data(options.label_count)
-
-    return None
 
 
 class QualityComparisionTest(TroiaUser):
@@ -52,13 +50,13 @@ class QualityComparisionTest(TroiaUser):
         workers, objects, golds, labels, votes, cost_matrix = generate_data(self.label_count)
         for i in range(self.steps):
             startTime = time.clock()
-            initializeDawidSkene(self.jid,self.tc,workers, objects, golds, labels, votes, cost_matrix,False)
-            batchResults=executeDawidSkene(self.jid, self.tc, self.iterations,votes)
+            initializeDawidSkene(self.jid,self.tc,workers, golds, labels, cost_matrix,False)
+            batchResults=executeDawidSkene(self.jid, self.tc, self.iterations, objects, votes)
             endTime = time.clock()
             batchTime = endTime-startTime
             startTime = time.clock()
-            initializeDawidSkene(self.jid,self.tc,workers, objects, golds, labels, votes, cost_matrix,True)
-            incrementalResults=executeDawidSkene(self.jid, self.tc, self.iterations, votes)
+            initializeDawidSkene(self.jid,self.tc,workers, golds, labels, cost_matrix,True)
+            incrementalResults=executeDawidSkene(self.jid, self.tc, self.iterations, objects, votes)
             endTime = time.clock()
             incrementalTime  = endTime-startTime
             timeDifference = incrementalTime-batchTime
@@ -72,6 +70,18 @@ class QualityComparisionTest(TroiaUser):
                         + str(differingMajorityVoteCount) + " Incremental time adv =" + str(timeDifference)
             self.iterations = self.iterations+self.iteration_step
 
+    def additionTest(self,addition):
+        workers, objects, golds, labels, votes, cost_matrix = generate_data(self.label_count)
+        initializeDawidSkene(self.jid+"_batch",self.tc,workers, golds, labels, votes, cost_matrix,False)
+        initializeDawidSkene(self.jid+"_incremental",self.tc,workers, golds, labels, votes, cost_matrix,True)
+        offset = 0
+        for i in range(self.steps):
+            next_offset = offset + addition
+            objects = generate_objects(offset,next_offset)
+            votes = generate_votes(addition*5,workers,objects,golds,labels)
+            startTime = time.clock()
+            batchResults=executeDawidSkene(self.jid, self.tc, self.iterations, objects, votes)
+            endTime = time.clock()
     def loop(self):
         print "Begining quality comparition test"
         self.basicTest()

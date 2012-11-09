@@ -29,7 +29,7 @@ def generate_core_items(start_number,n_workers, n_objects, n_labels):
          generate_labels(start_number,n_labels)
 
 
-def genereate_votes(n_votes, workers, objects, golds, labels):
+def generate_votes(n_votes, workers, objects, golds, labels):
     objects = objects + [x[0] for x in golds]
     return [(choice(workers), choice(objects), choice(labels))
         for _ in xrange(n_votes)]
@@ -49,7 +49,7 @@ def generate_data(n_votes, n_labels=2, n_objects=None,
     workers, objects, labels = generate_core_items(0,n_workers,
         n_objects, n_labels)
     golds = generate_golds(0,n_golds,labels)
-    votes = genereate_votes(n_votes, workers, objects, golds, labels)
+    votes = generate_votes(n_votes, workers, objects, golds, labels)
 
     cost_matrix = generate_cost_matrix(labels)
     cost_matrix = transform_cost_from_flat_to_dict(cost_matrix)
