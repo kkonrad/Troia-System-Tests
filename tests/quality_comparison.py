@@ -49,17 +49,17 @@ class QualityComparisionTest(TroiaUser):
     def basicTest(self):
         workers, objects, golds, labels, votes, cost_matrix = generate_data(self.label_count)
         for i in range(self.steps):
-            startTime = time.clock()
+            startTime = time.time()
             initializeDawidSkene(self.jid,self.tc,workers, golds, labels, cost_matrix,False)
             batchResults=executeDawidSkene(self.jid, self.tc, self.iterations, objects, votes)
-            endTime = time.clock()
+            endTime = time.time()
             batchTime = endTime-startTime
-            startTime = time.clock()
+            startTime = time.time()
             initializeDawidSkene(self.jid,self.tc,workers, golds, labels, cost_matrix,True)
             incrementalResults=executeDawidSkene(self.jid, self.tc, self.iterations, objects, votes)
-            endTime = time.clock()
+            endTime = time.time()
             incrementalTime  = endTime-startTime
-            timeDifference = incrementalTime-batchTime
+            timeDifference = batchTime-incrementalTime
             labelCount = 0
             differingMajorityVoteCount = 0
             objects = incrementalResults.keys()
@@ -72,19 +72,25 @@ class QualityComparisionTest(TroiaUser):
 
     def additionTest(self,addition):
         workers, objects, golds, labels, votes, cost_matrix = generate_data(self.label_count)
-        initializeDawidSkene(self.jid+"_batch",self.tc,workers, golds, labels, votes, cost_matrix,False)
-        initializeDawidSkene(self.jid+"_incremental",self.tc,workers, golds, labels, votes, cost_matrix,True)
+        initializeDawidSkene(self.jid+"_batch",self.tc,workers, golds, labels, cost_matrix,False)
+        initializeDawidSkene(self.jid+"_incremental",self.tc,workers, golds, labels, cost_matrix,True)
         offset = 0
         for i in range(self.steps):
             next_offset = offset + addition
             objects = generate_objects(offset,next_offset)
             votes = generate_votes(addition*5,workers,objects,golds,labels)
-            startTime = time.clock()
-            batchResults=executeDawidSkene(self.jid, self.tc, self.iterations, objects, votes)
-            endTime = time.clock()
+            startTime = time.time()
+            batchResults=executeDawidSkene(self.jid+"_batch", self.tc, self.iterations, objects, votes)
+            endTime = time.time()
+            batchTime = endTime-startTime
+            startTime = time.time()
+            batchResults=executeDawidSkene(self.jid+"_incremental", self.tc, self.iterations, objects, votes)
+            endTime = time.time()
+            incrementalTime = endTime-startTime
+            print "Incremental is faster by :" + str(batchTime-incrementalTime)
     def loop(self):
         print "Begining quality comparition test"
-        self.basicTest()
+        self.additionTest(500)
 
 
 
@@ -99,7 +105,7 @@ def main():
                       type='int',help="Difference between iteration count in proceeding test execution")
 
     (options, args) = parser.parse_args()
-    test = QualityComparisionTest(get_troia_client(),"QualityTest",options.initial_iterations,options.iteration_step,5,options.label_count)
+    test = QualityComparisionTest(get_troia_client(),"QualityTest",options.initial_iterations,options.iteration_step,20,options.label_count)
     test.loop()
 
 if __name__ == "__main__":
