@@ -30,7 +30,6 @@ def executeDawidSkene(jid, tc, iterations, incremental, golds, cost_matrix, assi
 #    print "Labels loaded"
     tc.load_gold_labels(golds, jid)
 #    print "Gold labels loaded"
-    time.sleep(4)
     tc.compute_non_blocking(iterations, jid)
 #    print "Created computer"
     while 'true' not in tc.is_computed(jid):
@@ -75,7 +74,6 @@ def main():
     datasets = [load_all(ds) for ds in DATASETS]
     workers, objects, golds, labels, votes, cost_matrix = generate_data(10000)
     fakeDataset = [golds,cost_matrix,votes]
-    print golds
     test = QualityComparisionTest(get_troia_client(),"QualityTest",1,3,fakeDataset)
     test.loop_x_times(5)
 

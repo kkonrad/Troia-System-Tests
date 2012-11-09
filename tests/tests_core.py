@@ -45,7 +45,6 @@ def web_demo_scenario(jid, tc, iterations, golds, cost_matrix, assigns):
     for package in (assigns[i * N:(i + 1) * N] for i in xrange(num_packs)):
         tc.load_worker_assigned_labels(package, jid)
     tc.load_gold_labels(golds, jid)
-    time.sleep(4)
     for _ in xrange(iterations):
         tc.compute_non_blocking(1, jid)
         while 'true' not in tc.is_computed(jid):
