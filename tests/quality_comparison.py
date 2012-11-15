@@ -66,8 +66,8 @@ class QualityComparisionTest(TroiaUser):
             for index in  range(len(objects)):
                 if incrementalResults[objects[index]] != batchResults[objects[index]] :
                     differingMajorityVoteCount = differingMajorityVoteCount + 1
-                    print "Objects = "+str(len(objects))+" Iterations = "+ str(self.iterations)+" Differing labels = "\
-                        + str(differingMajorityVoteCount) + " Incremental time adv =" + str(timeDifference)
+            print "Objects = "+str(len(objects))+" Iterations = "+ str(self.iterations)+" Differing labels = "\
+                   + str(float(differingMajorityVoteCount)/float(len(objects))*100.0) + "% Incremental time adv =" + str(timeDifference)
             self.iterations = self.iterations+self.iteration_step
 
     def additionTest(self,addition):
@@ -84,10 +84,20 @@ class QualityComparisionTest(TroiaUser):
             endTime = time.time()
             batchTime = endTime-startTime
             startTime = time.time()
-            batchResults=executeDawidSkene(self.jid+"_incremental", self.tc, self.iterations, objects, votes)
+            incrementalResults=executeDawidSkene(self.jid+"_incremental", self.tc, self.iterations, objects, votes)
             endTime = time.time()
             incrementalTime = endTime-startTime
             print "Incremental is faster by :" + str(batchTime-incrementalTime)
+            labelCount = 0
+            differingMajorityVoteCount = 0
+            objects = incrementalResults.keys()
+        for index in  range(len(objects)):
+            if incrementalResults[objects[index]] != batchResults[objects[index]] :
+                differingMajorityVoteCount = differingMajorityVoteCount + 1
+        print "Objects = "+str(len(objects))+" Iterations = "+ str(self.iterations)+" Differing labels = "\
+               + str(float(differingMajorityVoteCount)/float(len(objects))*100.0) + "%" 
+
+
     def loop(self):
         print "Begining quality comparition test"
         self.additionTest(500)
@@ -110,3 +120,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
